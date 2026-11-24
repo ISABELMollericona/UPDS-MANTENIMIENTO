@@ -1,0 +1,78 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Gestión de mantenimiento | UPDS{% endblock %}</title>
+  <meta name="theme-color" content="#064b87">
+  <link rel="manifest" href="{% url 'manifest' %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap-icons/bootstrap-icons.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  <link rel="stylesheet" href="{% static 'css/ui.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  <header class="portal-header">
+    <div class="portal-masthead">
+      <div class="container-fluid portal-container d-flex align-items-center justify-content-between gap-3">
+        <a class="portal-brand" href="{% url 'panel' %}" aria-label="UPDS Cochabamba, ir al panel de inicio">
+          <span class="portal-brand-mark"><i class="bi bi-building" aria-hidden="true"></i></span>
+          <span class="portal-brand-copy"><strong>UPDS</strong><small>Cochabamba</small></span>
+        </a>
+        <div class="portal-product-lockup ms-auto">
+          <span class="portal-product-kicker">Sistema universitario</span>
+          <strong>Gestión de mantenimiento</strong>
+          <span class="portal-product-subtitle">Equipamiento · Servicios · Infraestructura</span>
+        </div>
+      </div>
+    </div>
+    <nav class="navbar navbar-expand-xl navbar-dark portal-navbar" aria-label="Navegación principal">
+      <div class="container-fluid portal-container">
+        <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Abrir menú principal">
+          <span class="navbar-toggler-icon"></span><span class="ms-2 small fw-semibold">Menú</span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNav">
+          <ul class="navbar-nav portal-nav-links me-auto">
+            {% if user.is_authenticated %}
+              {% if perms.cuentas.ver_dashboard or user.is_superuser %}<li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'panel' %}active{% endif %}" href="{% url 'panel' %}"><i class="bi bi-grid-1x2" aria-hidden="true"></i><span>Inicio</span></a></li>{% endif %}
+              {% if perms.cuentas.ver_ambientes %}<li class="nav-item"><a class="nav-link {% if request.resolver_match.app_name == 'ubicaciones' %}active{% endif %}" href="{% url 'ubicaciones:lista' %}"><i class="bi bi-geo-alt" aria-hidden="true"></i><span>Laboratorios</span></a></li>{% endif %}
+              {% if perms.cuentas.ver_equipos %}<li class="nav-item"><a class="nav-link {% if request.resolver_match.app_name == 'equipos' %}active{% endif %}" href="{% url 'equipos:lista' %}"><i class="bi bi-pc-display" aria-hidden="true"></i><span>Equipos</span></a></li>{% endif %}
+              {% if perms.cuentas.ver_solicitudes %}<li class="nav-item"><a class="nav-link {% if request.resolver_match.app_name == 'solicitudes' %}active{% endif %}" href="{% url 'solicitudes:lista' %}"><i class="bi bi-clipboard-check" aria-hidden="true"></i><span>Reportes de falla</span></a></li>{% endif %}
+              {% if perms.cuentas.ver_intervenciones %}<li class="nav-item"><a class="nav-link {% if request.resolver_match.app_name == 'intervenciones' %}active{% endif %}" href="{% url 'intervenciones:mis_tareas' %}"><i class="bi bi-wrench-adjustable" aria-hidden="true"></i><span>Mis tareas</span></a></li>{% endif %}
+              {% if perms.cuentas.ver_preventivos %}<li class="nav-item"><a class="nav-link {% if request.resolver_match.app_name == 'preventivo' %}active{% endif %}" href="{% url 'preventivo:cronograma' %}"><i class="bi bi-calendar2-check" aria-hidden="true"></i><span>Preventivo</span></a></li>{% endif %}
+              {% if perms.cuentas.ver_reportes %}<li class="nav-item"><a class="nav-link {% if request.resolver_match.app_name == 'reportes' %}active{% endif %}" href="{% url 'reportes:lista' %}"><i class="bi bi-bar-chart-line" aria-hidden="true"></i><span>Reportes</span></a></li>{% endif %}
+              {% if perms.cuentas.ver_usuarios or user.is_superuser %}<li class="nav-item"><a class="nav-link {% if request.resolver_match.app_name == 'cuentas' and request.resolver_match.url_name == 'usuarios' %}active{% endif %}" href="{% url 'cuentas:usuarios' %}"><i class="bi bi-people" aria-hidden="true"></i><span>Usuarios</span></a></li>{% endif %}
+              {% if perms.cuentas.ver_roles or user.is_superuser %}<li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'roles' or request.resolver_match.url_name == 'rol_crear' or request.resolver_match.url_name == 'rol_editar' %}active{% endif %}" href="{% url 'cuentas:roles' %}"><i class="bi bi-shield-lock" aria-hidden="true"></i><span>Roles</span></a></li>{% endif %}
+            {% endif %}
+          </ul>
+          <div class="portal-account">
+            {% if user.is_authenticated %}
+              <span id="offline-status" class="offline-status online" aria-live="polite">En línea</span>
+              <span class="portal-account-name" title="{{ user.get_full_name|default:user.username }}"><i class="bi bi-person-circle" aria-hidden="true"></i>{{ user.get_full_name|default:user.username }}</span>
+              <a class="btn btn-sm btn-outline-light" href="{% url 'password_change' %}"><i class="bi bi-key" aria-hidden="true"></i><span>Contraseña</span></a>
+              <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="btn btn-sm btn-light portal-logout" type="submit"><i class="bi bi-box-arrow-right" aria-hidden="true"></i><span>Salir</span></button></form>
+            {% else %}
+              <a class="btn btn-sm btn-light portal-logout" href="{% url 'login' %}"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i><span>Iniciar sesión</span></a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+  <main class="container-fluid portal-main px-3 px-lg-4 py-4">
+    {% if user.is_authenticated %}
+      <nav class="portal-breadcrumb" aria-label="Ruta de navegación"><a href="{% url 'panel' %}">Inicio</a>{% if request.resolver_match.app_name %}<span aria-hidden="true">/</span><span>{% if request.resolver_match.app_name == 'cuentas' %}Administración{% elif request.resolver_match.app_name == 'equipos' or request.resolver_match.app_name == 'ubicaciones' %}Inventario{% elif request.resolver_match.app_name == 'solicitudes' or request.resolver_match.app_name == 'intervenciones' or request.resolver_match.app_name == 'preventivo' %}Mantenimiento{% elif request.resolver_match.app_name == 'reportes' %}Análisis{% else %}Sistema{% endif %}</span>{% endif %}</nav>
+    {% endif %}
+    {% if messages %}<div class="messages" aria-live="polite">{% for message in messages %}<div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button></div>{% endfor %}</div>{% endif %}
+    {% block content %}{% endblock %}
+  </main>
+  <script src="{% static 'vendor/bootstrap/bootstrap.bundle.min.js' %}"></script>
+  <script defer src="{% static 'js/offline.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>
